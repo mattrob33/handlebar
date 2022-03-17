@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Vault App"
 include ':app'
+include ':vault'
