@@ -8,11 +8,12 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        minSdk = 31
+        minSdk = 21
         targetSdk = 31
     }
 
     buildTypes {
+        getByName("debug") {}
         getByName("release") {
             isMinifyEnabled = false
         }
@@ -42,4 +43,8 @@ dependencies {
 
     implementation("com.google.auto.service:auto-service-annotations:1.0")
     ksp("dev.zacsweers.autoservice:auto-service-ksp:1.0.0")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xopt-in=com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview"
 }
