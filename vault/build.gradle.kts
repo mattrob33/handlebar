@@ -1,32 +1,30 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
+    id("com.android.library")
+    id("kotlin-android")
     id("com.google.devtools.ksp") version "1.6.10-1.0.4"
 }
 
 android {
-    compileSdk 31
+    compileSdk = 31
 
     defaultConfig {
-        minSdk 21
-        targetSdk 31
-        versionCode 1
-        versionName "0.1.0"
-        consumerProguardFiles "consumer-rules.pro"
+        minSdk = 31
+        targetSdk = 31
     }
 
     buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        getByName("release") {
+            isMinifyEnabled = false
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
     }
     ksp {
         arg("autoserviceKsp.verify", "true")
