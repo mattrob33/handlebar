@@ -8,7 +8,7 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        applicationId = "com.mattrobertson.vault.sample"
+        applicationId = "com.mattrobertson.handlebar.sample"
         minSdk = 21
         targetSdk = 31
         versionCode = 1
@@ -30,12 +30,19 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    kotlin.sourceSets.main {
+        kotlin.srcDirs(
+            file("$buildDir/generated/ksp/"),
+        )
+    }
 }
 
 dependencies {
-    implementation(project(":vault"))
 
-    ksp(project(":vault"))
+    implementation(project(":handlebar"))
+    implementation(project(path = ":handlebar-annotation", configuration = "default"))
+    ksp(project(path = ":handlebar-ksp", configuration = "default"))
 
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.4.1")

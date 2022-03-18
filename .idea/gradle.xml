@@ -11,7 +11,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/vault" />
+            <option value="$PROJECT_DIR$/handlebar" />
+            <option value="$PROJECT_DIR$/handlebar-annotation" />
+            <option value="$PROJECT_DIR$/handlebar-ksp" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
