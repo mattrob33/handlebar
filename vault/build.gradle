@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id("com.google.devtools.ksp") version "1.6.10-1.0.4"
 }
 
 android {
@@ -27,11 +28,20 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    ksp {
+        arg("autoserviceKsp.verify", "true")
+        arg("autoserviceKsp.verbose", "true")
+    }
 }
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.4.1")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
-    runtimeOnly("com.squareup:kotlinpoet:1.10.2")
+    implementation("com.squareup:kotlinpoet:1.10.2")
+    implementation("com.squareup:kotlinpoet-ksp:1.10.2")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.6.10-1.0.4")
+
+    implementation("com.google.auto.service:auto-service-annotations:1.0")
+    ksp("dev.zacsweers.autoservice:auto-service-ksp:1.0.0")
 }

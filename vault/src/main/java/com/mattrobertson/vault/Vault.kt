@@ -2,26 +2,10 @@ package com.mattrobertson.vault
 
 import androidx.lifecycle.SavedStateHandle
 import kotlin.reflect.KClass
-import kotlin.reflect.full.declaredMemberProperties
 
-class Vault {
 
-    companion object {
-
-        /**
-         *
-         */
-        fun <T: Any> wrap(state: SavedStateHandle, asType: KClass<T>): T {
-            require(asType.java.isInterface) { "Vault.create() only accepts an interface" }
-
-            asType.declaredMemberProperties.forEach { prop ->
-
-            }
-        }
-
-    }
+infix fun <T: AbstractTypedState> SavedStateHandle.typedAs(type: KClass<T>): T {
+    return type.java.getDeclaredConstructor(SavedStateHandle::class.java).newInstance(this)
 }
 
-infix fun <T: Any> SavedStateHandle.typedAs(intf: KClass<T>): T {
-    return Vault.wrap(this, intf)
-}
+abstract class AbstractTypedState(protected val handle: SavedStateHandle)
