@@ -8,7 +8,7 @@ android {
     compileSdk = 31
 
     defaultConfig {
-        applicationId = "com.mattrobertson.handlebar.sample"
+        applicationId = "dev.mattrobertson.handlebar.sample"
         minSdk = 21
         targetSdk = 31
         versionCode = 1

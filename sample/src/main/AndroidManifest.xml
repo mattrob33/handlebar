@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mattrobertson.handlebar.sample">
+    package="dev.mattrobertson.handlebar.sample">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HandlebarApp">
         <activity
-            android:name="com.mattrobertson.handlebar.sample.MainActivity"
+            android:name="dev.mattrobertson.handlebar.sample.dev.mattrobertson.handlebar.sample.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
