@@ -10,7 +10,6 @@ import com.mattrobertson.handlebar.annotation.TypedState
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
 
 @KotlinPoetKspPreview
 class TypedStateSymbolProcessor(
@@ -45,8 +44,6 @@ class TypedStateSymbolProcessor(
                 return
             }
 
-            val simpleName = classDeclaration.simpleName.asString()
-
             if (classDeclaration.classKind != ClassKind.INTERFACE) {
                 logger.error(
                     "@TypedState can only be applied to interfaces. $qualifiedName is not an interface.",
@@ -60,7 +57,7 @@ class TypedStateSymbolProcessor(
                     it.accept(this, Unit)
                 }
 
-            generateTypedStateInstance(
+            generateInterfaceAndImplementation(
                 codeGenerator = codeGenerator,
                 spec = TypedStateSpec(
                     superInterface = classDeclaration.toClassName(),
@@ -70,20 +67,24 @@ class TypedStateSymbolProcessor(
         }
 
         override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
-            if (!property.isMutable) {
-                logger.error(
-                    "@TypedState can only contain mutable properties.",
-                    property
-                )
-                return
-            }
+            val type = property.type.resolve()
+            val isLiveData = (type.toClassName().simpleName == "LiveData")
 
-            if (!property.type.toTypeName().isNullable) {
-                logger.error(
-                    "@TypedState can only contain nullable properties.",
-                    property
-                )
-                return
+            when {
+                property.isMutable && isLiveData -> {
+                    logger.error(
+                        "LiveData variables marked with @TypedState must be immutable.",
+                        property
+                    )
+                    return
+                }
+                !property.isMutable && !isLiveData -> {
+                    logger.error(
+                        "Variables marked with @TypedState must be mutable.",
+                        property
+                    )
+                    return
+                }
             }
 
             properties.add(

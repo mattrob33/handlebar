@@ -18,7 +18,9 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {}
+        getByName("debug") {
+            isMinifyEnabled = false
+        }
         getByName("release") {
             isMinifyEnabled = false
         }
@@ -36,6 +38,8 @@ android {
             file("$buildDir/generated/ksp/"),
         )
     }
+
+
 }
 
 dependencies {

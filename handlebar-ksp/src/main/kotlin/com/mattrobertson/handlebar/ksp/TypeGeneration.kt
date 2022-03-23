@@ -1,18 +1,48 @@
 package com.mattrobertson.handlebar.ksp
 
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ksp.TypeParameterResolver
-import com.squareup.kotlinpoet.ksp.toTypeName
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.writeTo
-import java.io.File
 
-internal fun generateTypedStateInstance(
+internal fun generateInterfaceAndImplementation(
     codeGenerator: CodeGenerator,
     spec: TypedStateSpec
 ) {
+    generateInterface(codeGenerator, spec)
+    generateImplementation(codeGenerator, spec)
+}
 
-    val implName = "${spec.superInterface.simpleName}Impl"
+private fun generateInterface(
+    codeGenerator: CodeGenerator,
+    spec: TypedStateSpec
+) {
+    val interfaceName = "${spec.superInterface.simpleName}Contract"
+
+    val fileSpec = FileSpec.builder(
+        packageName = spec.superInterface.packageName,
+        fileName = interfaceName
+    ).addType(
+        TypeSpec.interfaceBuilder(interfaceName).apply {
+            spec.props.forEach { prop ->
+                prop.buildInterfaceSpec(this)
+            }
+        }
+        .build()
+    )
+    .build()
+
+    fileSpec.writeTo(codeGenerator, aggregating = false)
+}
+
+private fun generateImplementation(
+    codeGenerator: CodeGenerator,
+    spec: TypedStateSpec
+) {
+    val superName = "${spec.superInterface.simpleName}Contract"
+    val implName = "${spec.superInterface.simpleName}ContractImpl"
 
     val fileSpec = FileSpec.builder(
         packageName = spec.superInterface.packageName,
@@ -20,44 +50,25 @@ internal fun generateTypedStateInstance(
     ).addType(
         TypeSpec.classBuilder(implName).apply {
             spec.props.forEach { prop ->
-                addProperty(
-                    PropertySpec.builder(
-                        prop.name,
-                        prop.type.toTypeName(TypeParameterResolver.EMPTY),
-                        KModifier.OVERRIDE
-                    )
-                    .mutable(true)
-                    .getter(
-                        FunSpec.getterBuilder()
-                            .addStatement("return handle[\"${prop.name}\"]")
-                            .build()
-                    )
-                    .setter(
-                        FunSpec.setterBuilder()
-                            .addParameter("value", prop.type.toTypeName(TypeParameterResolver.EMPTY))
-                            .addStatement("handle[\"${prop.name}\"] = value")
-                            .build()
-                    )
-                    .build()
-                )
+                prop.buildSpec(this)
             }
         }
-        .superclass(
-            ClassName(
-                packageName = "com.mattrobertson.handlebar",
-                "AbstractTypedState"
+            .superclass(
+                ClassName(
+                    packageName = "com.mattrobertson.handlebar",
+                    "AbstractTypedState"
+                )
             )
-        )
-        .addSuperclassConstructorParameter("handle")
-        .addSuperinterface(spec.superInterface)
-        .primaryConstructor(
-            FunSpec.constructorBuilder()
-                .addParameter("handle", ClassName("androidx.lifecycle", "SavedStateHandle"))
-                .build()
-        )
-        .build()
+            .addSuperclassConstructorParameter("handle")
+            .addSuperinterface(ClassName(spec.superInterface.packageName, superName))
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter("handle", ClassName("androidx.lifecycle", "SavedStateHandle"))
+                    .build()
+            )
+            .build()
     )
     .build()
 
-    fileSpec.writeTo(codeGenerator = codeGenerator, aggregating = false)
+    fileSpec.writeTo(codeGenerator, aggregating = false)
 }
