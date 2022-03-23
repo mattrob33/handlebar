@@ -104,7 +104,7 @@ private fun Property.buildNonNullableLiveDataPropSpec(): PropertySpec {
         .mutable(false)
         .getter(
             FunSpec.getterBuilder()
-                .addStatement("return handle.getLiveData<${parameterizedType}>(\"${name}\")")
+                .addStatement("return handle.getLiveData<${parameterizedType}>(\"${name}\", ${parameterizedType!!.resolve().defaultValue})")
                 .build()
         )
         .build()

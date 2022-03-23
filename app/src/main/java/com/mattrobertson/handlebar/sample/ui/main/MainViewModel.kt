@@ -10,17 +10,34 @@ class MainViewModel(
     stateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val test = stateHandle.getLiveData<String>("")
-    val test2 = stateHandle.getLiveData<String>("", "")
+    @TypedState interface State {
+        var name: String
+        val age: LiveData<Int>
+        val pet: LiveData<Pet>
+    }
 
-    private val state = stateHandle.asType<MainStateContract>()
+    private val state = stateHandle.asType<StateContract>()
 
-    val name = state.name
+    val age = state.age
+    val pet = state.pet
 
+    var name: String
+        get() = state.name
+        set(value) { state.name = value }
+
+    fun increaseAge() {
+        state.updateAge(age.value!! + 1)
+    }
 }
 
-@TypedState
-interface MainState {
-    var name: String
-    val age: LiveData<Int>
+data class Pet(
+    val name: String,
+    val species: Species
+)
+
+enum class Species {
+    Dog,
+    Cat,
+    Bird,
+    Fish
 }
