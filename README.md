@@ -1,6 +1,6 @@
-# Handlebar
 <div align="center">
   <img src ="https://user-images.githubusercontent.com/4062288/159766075-d59ba1ea-c2b1-4264-86f9-6975c7dc45eb.png" width="200" />
+  <h3>Handlebar</h3>
   <p>Typesafe SavedStateHandle in Android ViewModels.</p>
 </div>
 
