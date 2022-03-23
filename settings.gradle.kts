@@ -5,8 +5,10 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
 rootProject.name = "Handlebar"
-include ':app'
-include ':handlebar'
-include ':handlebar-ksp'
-include ':handlebar-annotation'
+
+include(":sample")
+include(":handlebar")
+include(":handlebar-ksp")
+include(":handlebar-annotation")
