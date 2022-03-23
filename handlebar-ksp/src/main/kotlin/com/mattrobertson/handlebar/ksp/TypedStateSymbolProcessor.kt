@@ -7,7 +7,6 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import com.mattrobertson.handlebar.annotation.TypedState
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview
 import com.squareup.kotlinpoet.ksp.toClassName
 
@@ -19,21 +18,19 @@ class TypedStateSymbolProcessor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
 
-        resolver.builtIns.intType
-
         val symbols = resolver.getSymbolsWithAnnotation(TypedState::class.qualifiedName!!)
-        val unableToProcess = symbols.filterNot { it.validate() }
 
         symbols
             .filter { it is KSClassDeclaration && it.validate() }
             .forEach { it.accept(Visitor(), Unit) }
 
-        return unableToProcess.toList()
+        val unprocessedSymbols = symbols.filterNot { it.validate() }.toList()
+        return unprocessedSymbols
     }
 
     private inner class Visitor: KSVisitorVoid() {
 
-        val properties = mutableListOf<Property>()
+        val properties = mutableListOf<TypedStateProperty>()
 
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
             val qualifiedName = classDeclaration.qualifiedName?.asString() ?: run {
@@ -52,58 +49,19 @@ class TypedStateSymbolProcessor(
                 return
             }
 
-            classDeclaration.getAllProperties()
-                .forEach {
-                    it.accept(this, Unit)
-                }
+            classDeclaration.getAllProperties().forEach { property ->
+                property.accept(this, Unit)
+            }
 
-            generateInterfaceAndImplementation(
-                codeGenerator = codeGenerator,
-                spec = TypedStateSpec(
-                    superInterface = classDeclaration.toClassName(),
-                    props = properties
+            TypedStateGenerator(codeGenerator)
+                .generate(
+                    sourceInterface = classDeclaration.toClassName(),
+                    properties = properties
                 )
-            )
         }
 
         override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
-            val type = property.type.resolve()
-            val isLiveData = (type.toClassName().simpleName == "LiveData")
-
-            when {
-                property.isMutable && isLiveData -> {
-                    logger.error(
-                        "LiveData variables marked with @TypedState must be immutable.",
-                        property
-                    )
-                    return
-                }
-                !property.isMutable && !isLiveData -> {
-                    logger.error(
-                        "Variables marked with @TypedState must be mutable.",
-                        property
-                    )
-                    return
-                }
-            }
-
-            properties.add(
-                Property(
-                    name = property.simpleName.asString(),
-                    type = property.type.resolve()
-                )
-            )
+            properties.add(property.asTypedStateProperty())
         }
-
     }
 }
-
-internal data class TypedStateSpec(
-    val superInterface: ClassName,
-    val props: List<Property>
-)
-
-internal data class Property(
-    val name: String,
-    val type: KSType
-)
